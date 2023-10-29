@@ -14,4 +14,5 @@ public class ChatDto {
     private String memberId;
     private String content;
     private LocalDateTime createAt;
+    private Long sequence;
 }

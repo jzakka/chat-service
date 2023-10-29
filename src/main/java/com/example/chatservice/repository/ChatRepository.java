@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatRepository extends MongoRepository<Chat, String> {
-    @Query("{ 'gatherId': ?0, 'createdAt': { $lt: ?1 } }")
-    List<Chat> findByGatherIdAndCreateAtBeforeOrderByCreateAt(String gatherId, LocalDateTime orderThan, Pageable pageable);
+    @Query("{ 'gatherId': ?0, 'sequence': { $lt: ?1 } }")
+    List<Chat> findByGatherIdOrderBySequence(String gatherId, Long sequence, Pageable pageable);
 
 }

@@ -20,20 +20,25 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final ModelMapper mapper;
     private final Environment env;
+    private final GenerateSequenceService sequenceService;
 
     @Override
     public ChatDto send(ChatDto chatDto) {
         Chat chat = mapper.map(chatDto, Chat.class);
-        chatRepository.save(chat);
 
-        return chatDto;
+        Long seq = sequenceService.generateSequence(chatDto.getGatherId());
+        chat.setSequence(seq);
+
+        Chat save = chatRepository.save(chat);
+
+        return mapper.map(save, ChatDto.class);
     }
 
     @Override
-    public List<ChatDto> getChats(String gatherId, LocalDateTime olderThan) {
+    public List<ChatDto> getChats(String gatherId, Long sequence) {
         int size = Integer.parseInt(env.getProperty("page.size"));
-        Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "createAt"));
-        List<Chat> chats = chatRepository.findByGatherIdAndCreateAtBeforeOrderByCreateAt(gatherId, olderThan, pageable);
+        Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "sequence"));
+        List<Chat> chats = chatRepository.findByGatherIdOrderBySequence(gatherId, sequence, pageable);
 
         List<ChatDto> chatDtos = chats.stream()
                 .map(document -> mapper.map(document, ChatDto.class))

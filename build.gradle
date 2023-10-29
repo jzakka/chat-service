@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.projectlombok:lombok:1.18.22'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.springframework.cloud:spring-cloud-starter'
@@ -47,6 +48,9 @@ dependencies {
     implementation 'com.sun.xml.bind:jaxb-core:4.0.1'
     // javax.xml.bind
     implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {

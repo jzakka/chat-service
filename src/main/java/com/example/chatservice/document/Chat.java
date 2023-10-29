@@ -1,6 +1,7 @@
 package com.example.chatservice.document;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -14,5 +15,7 @@ public class Chat {
     private String gatherId;
     private String memberId;
     private String content;
+    @CreatedDate
     private LocalDateTime createAt;
+    private Long sequence;
 }
