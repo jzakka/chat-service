@@ -1,1 +1,44 @@
+server:
+  port: 0
+  error:
+    include-message: always
+spring:
+  application:
+    name: chat-service
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: true
+        default_batch_fetch_size: 50
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+  data:
+    mongodb:
+      uri: mongodb://localhost:27107/moiza-msa
 
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+token:
+  expiration_time: 21600000 # 60 * 60 * 6 * 1000=> 6시간
+  secret: testtoken # TODO 설정 파일 보안정보 옮기기
+
+logging:
+  level:
+    org.springframework.security: DEBUG
