@@ -1,0 +1,24 @@
+package com.example.chatservice.vo;
+
+import com.example.chatservice.enums.Rule;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+public class ResponseJoin {
+    private String gatherId;
+    private String gatherName;
+    private String email;
+    private String memberId;
+    private Rule rule;
+    private List<ResponseDateTime> selectDateTimes = new ArrayList<>();
+
+    @Data
+    private static class ResponseDateTime {
+        private LocalDateTime startDateTime;
+        private LocalDateTime endDateTime;
+    }
+}
