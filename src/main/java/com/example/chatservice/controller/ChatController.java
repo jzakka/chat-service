@@ -3,14 +3,21 @@ package com.example.chatservice.controller;
 import com.example.chatservice.dto.ChatDto;
 import com.example.chatservice.service.ChatService;
 import com.example.chatservice.vo.RequestChat;
+import com.example.chatservice.vo.ResponseChat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,5 +37,16 @@ public class ChatController {
         String jsonInString = objectMapper.writeValueAsString(sentChatDto);
 
         kafkaTemplate.send(env.getProperty("spring.kafka.topic-name"), jsonInString);
+    }
+
+    @GetMapping("/chats/{gatherId}")
+    public ResponseEntity<List<ResponseChat>> getChats(@PathVariable String gatherId, @RequestParam Long seq) {
+        List<ChatDto> chats = chatService.getChats(gatherId, seq);
+
+        List<ResponseChat> body = chats.stream()
+                .map(chatDto -> modelMapper.map(chatDto, ResponseChat.class))
+                .toList();
+
+        return ResponseEntity.ok(body);
     }
 }
