@@ -8,21 +8,20 @@ import io.jsonwebtoken.Jwts;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtils {
-    @Value("${token.secret}")
-    private String secretKey;
-
+public class JwtUtils { ;
+    private final Environment env;
     private final ObjectMapper objectMapper;
 
     public Claims getClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(secretKey)
+                .setSigningKey(env.getProperty("token.secret"))
                 .parseClaimsJws(token)
                 .getBody();
     }

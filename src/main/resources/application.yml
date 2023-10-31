@@ -36,11 +36,6 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
-token:
-  expiration_time: 21600000 # 60 * 60 * 6 * 1000=> 6시간
-  secret: testtoken # TODO 설정 파일 보안정보 옮기기
-  invalid-msg: 유효하지 않은 토큰 정보입니다.
-
 page:
   size: 20
 
