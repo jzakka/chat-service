@@ -5,9 +5,11 @@ import com.example.chatservice.service.ChatService;
 import com.example.chatservice.utils.JwtUtils;
 import com.example.chatservice.vo.RequestChat;
 import com.example.chatservice.vo.ResponseChat;
+import com.example.chatservice.vo.TokenJoinAuthority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.kafka.common.errors.AuthorizationException;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,12 @@ public class ChatController {
     @SneakyThrows
     @MessageMapping("/chats/message")
     public void send(@Payload RequestChat chatRequest, @Header("Authorization") String bearerToken) {
+        jwtUtils.getJoinAuthorities(bearerToken).stream()
+                .map(TokenJoinAuthority::getGatherId)
+                .filter(joinGatherId -> joinGatherId.equals(chatRequest.getGatherId()))
+                .findAny()
+                .orElseThrow(() -> new AuthorizationException(env.getProperty("token.invalid-msg")));
+
         String tokenMemberId = jwtUtils.getMemberId(bearerToken);
 
         ChatDto chatDto = modelMapper.map(chatRequest, ChatDto.class);
@@ -48,7 +56,15 @@ public class ChatController {
     }
 
     @GetMapping("/chats/{gatherId}")
-    public ResponseEntity<List<ResponseChat>> getChats(@PathVariable String gatherId, @RequestParam Long seq) {
+    public ResponseEntity<List<ResponseChat>> getChats(@PathVariable String gatherId,
+                                                       @RequestParam Long seq,
+                                                       @Header("Authorization") String bearerToken) {
+        jwtUtils.getJoinAuthorities(bearerToken).stream()
+                .map(TokenJoinAuthority::getGatherId)
+                .filter(joinGatherId -> joinGatherId.equals(gatherId))
+                .findAny()
+                .orElseThrow(() -> new AuthorizationException(env.getProperty("token.invalid-msg")));
+
         List<ChatDto> chats = chatService.getChats(gatherId, seq);
 
         List<ResponseChat> body = chats.stream()

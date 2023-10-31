@@ -1,34 +1,25 @@
 package com.example.chatservice.interceptor;
 
-import com.example.chatservice.client.JoinServiceClient;
 import com.example.chatservice.utils.JwtUtils;
-import com.example.chatservice.vo.ResponseJoin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.example.chatservice.vo.TokenJoinAuthority;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.kafka.common.errors.AuthorizationException;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class CustomChannelInterceptor implements ChannelInterceptor {
     private final JwtUtils jwtUtils;
-    private final JoinServiceClient joinServiceClient;
     private final Environment env;
-    private final ObjectMapper objectMapper;
 
     @SneakyThrows
     @Override
@@ -46,7 +37,7 @@ public class CustomChannelInterceptor implements ChannelInterceptor {
         }
 
         String jwtToken = authorization.get(0).replace("Bearer ", "");
-        String memberId = jwtUtils.getMemberId(jwtToken);
+        List<TokenJoinAuthority> joinAuthorities = jwtUtils.getJoinAuthorities(jwtToken);
 
         String gatherId = null;
         String path = accessor.getNativeHeader("destination").get(0);
@@ -55,7 +46,7 @@ public class CustomChannelInterceptor implements ChannelInterceptor {
         }
 
         if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-            return subscribeMessage(message, gatherId, memberId);
+            return subscribeMessage(message, gatherId, joinAuthorities);
         }
 
         return message;
@@ -68,12 +59,14 @@ public class CustomChannelInterceptor implements ChannelInterceptor {
         return gatherId;
     }
 
-    private Message<?> subscribeMessage(Message<?> message, String gatherId, String memberId) {
-        List<String> memberIds = joinServiceClient.getJoins(gatherId).stream()
-                .map(ResponseJoin::getMemberId)
+    private Message<?> subscribeMessage(Message<?> message,
+                                        String gatherId,
+                                        List<TokenJoinAuthority> joinAuthorities) {
+        List<String> gatherIds = joinAuthorities.stream()
+                .map(TokenJoinAuthority::getGatherId)
                 .toList();
 
-        if (memberIds.contains(memberId)) {
+        if (gatherIds.contains(gatherId)) {
             return message;
         }
 
