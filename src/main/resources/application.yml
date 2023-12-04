@@ -17,6 +17,7 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: 1
     consumer:
       bootstrap-servers: localhost:9092
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
