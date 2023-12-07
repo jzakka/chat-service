@@ -3,7 +3,6 @@ package com.example.chatservice.interceptor;
 import com.example.chatservice.utils.JwtUtils;
 import com.example.chatservice.vo.TokenJoinAuthority;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.Message;
@@ -21,7 +20,6 @@ public class CustomChannelInterceptor implements ChannelInterceptor {
     private final JwtUtils jwtUtils;
     private final Environment env;
 
-    @SneakyThrows
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);

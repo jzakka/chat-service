@@ -4,6 +4,7 @@ import com.example.chatservice.document.Chat;
 import com.example.chatservice.dto.ChatDto;
 import com.example.chatservice.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
@@ -25,6 +27,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto send(ChatDto chatDto) {
+        log.info("chatSerive.send()");
         Chat chat = mapper.map(chatDto, Chat.class);
 
         Long seq = sequenceService.generateSequence(chatDto.getGatherId());

@@ -8,10 +8,9 @@ import com.example.chatservice.vo.RequestChat;
 import com.example.chatservice.vo.ResponseChat;
 import com.example.chatservice.vo.TokenJoinAuthority;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.AuthorizationException;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ChatController {
@@ -36,7 +36,7 @@ public class ChatController {
     private final JwtUtils jwtUtils;
     private final Executor chatThreadPoolExecutor;
 
-    @SneakyThrows
+
     @MessageMapping("/chats/message")
     public void send(@Payload RequestChat chatRequest, @Header("Authorization") String bearerToken) {
         jwtUtils.getJoinAuthorities(bearerToken).stream()
@@ -54,6 +54,8 @@ public class ChatController {
         CompletableFuture
                 .supplyAsync(() -> chatService.send(chatDto), chatThreadPoolExecutor)
                 .thenAcceptAsync(kafkaProducer::produceEvent, chatThreadPoolExecutor);
+
+        log.info("end controller.send()");
     }
 
     @GetMapping("/chats/{gatherId}")
